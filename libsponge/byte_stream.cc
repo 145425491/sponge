@@ -7,26 +7,35 @@
 
 // You will need to add private members to the class declaration in `byte_stream.hh`
 
-template <typename... Targs>
-void DUMMY_CODE(Targs &&... /* unused */) {}
-
 using namespace std;
 
-ByteStream::ByteStream(const size_t capacity) { DUMMY_CODE(capacity); }
+ByteStream::ByteStream(const size_t capacity)
+:_stream(capacity), _capacity(capacity), _written_size(0), _read_size(0), _end(false), _error{false}{}
 
 size_t ByteStream::write(const string &data) {
-    DUMMY_CODE(data);
-    return {};
+    size_t count = 0;
+    while (_written_size++ < _capacity - _stream.size())
+    {
+        _stream.push_back(data[count++]);
+    }
+    return count;
 }
 
 //! \param[in] len bytes will be copied from the output side of the buffer
 string ByteStream::peek_output(const size_t len) const {
-    DUMMY_CODE(len);
-    return {};
+    size_t pop_size = min(len, _stream.size());
+    return string(_stream.begin(), _stream.begin() + pop_size);
 }
 
 //! \param[in] len bytes will be removed from the output side of the buffer
-void ByteStream::pop_output(const size_t len) { DUMMY_CODE(len); }
+void ByteStream::pop_output(const size_t len) {
+    size_t pop_size = min(len, _stream.size());
+    _read_size += len;
+    for (size_t i = 0; i < pop_size; i++)
+    {
+        _stream.pop_front();
+    }
+ }
 
 //! Read (i.e., copy and then pop) the next "len" bytes of the stream
 //! \param[in] len bytes will be popped and returned
