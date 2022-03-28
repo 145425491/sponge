@@ -18,7 +18,9 @@ class ByteStream {
     // that's a sign that you probably want to keep exploring
     // different approaches.
     std::deque<char> _stream = {};
-    size_t _capacity, _read_size, _written_size;
+    size_t _capacity;
+    size_t _written_size;
+    size_t _read_size;
     bool _end;
     bool _error{};  //!< Flag indicating that the stream suffered an error.
 
