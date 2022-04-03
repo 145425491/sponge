@@ -8,6 +8,17 @@
 #include<map>
 #include<set>
 
+struct substring{
+  size_t _idx;
+  std::string _str;
+  substring(std::string s, size_t x):_idx(x), _str(s){};
+  bool operator <(const substring b)const{
+    return this->_idx < b._idx;
+  }
+};
+
+typedef std::set<substring> Unaseembled;
+
 //! \brief A class that assembles a series of excerpts from a byte stream (possibly out of order,
 //! possibly overlapping) into an in-order byte stream.
 class StreamReassembler {
@@ -16,20 +27,12 @@ class StreamReassembler {
 
     ByteStream _output;  //!< The reassembled in-order byte stream
     size_t _capacity;    //!< The maximum number of bytes
-    struct substring{
-      size_t _idx;
-      std::string _str;
-      substring(std::string s, size_t x):_idx(x), _str(s){};
-      bool operator <(const substring b)const{
-        return this->_idx < b._idx;
-      }
-    };
     
     size_t _eof_pos;
     size_t _next_idx;
     bool _eof_flag;
     size_t _unassembled_byte_num;
-    std::set<substring> _unassembled_bytes;
+    Unaseembled _unassembled_bytes;
 
   public:
     //! \brief Construct a `StreamReassembler` that will store up to `capacity` bytes.

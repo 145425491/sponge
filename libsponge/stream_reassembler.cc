@@ -30,18 +30,26 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
     }else{
         substring tmp(correction, index);
         bool insertable = true;
-        for (auto it : _unassembled_bytes){
-            if (it._idx + it._str.size() >= tmp._idx + tmp._str.size() && it._idx <= tmp._idx){
-                insertable = false;
-                break;
-            }else if (it._idx > tmp._idx && it._str.size() + it._idx < tmp._idx + tmp._str.size()){
-                _unassembled_byte_num -= it._str.size();
-                _unassembled_bytes.erase(it);
-            }else if(it._idx + it._str.size() > tmp._idx && it._idx < tmp._idx){
-                tmp._str = tmp._str.substr(it._idx + it._str.size() - tmp._idx);
-                tmp._idx = it._idx + it._str.size();
-            }else if (it._idx < tmp._idx + tmp._str.size() && it._idx + it._str.size() > tmp._idx + tmp._str.size()){
-                tmp._str = tmp._str.substr(0, it._idx - tmp._idx);
+        if (!_unassembled_bytes.empty()){
+            for (Unaseembled::iterator it = _unassembled_bytes.begin(); it != _unassembled_bytes.end();){
+                if (it->_idx <= tmp._idx && it->_str.size() + it->_idx >= tmp._idx + tmp._str.size()){
+                    insertable = false;
+                    break;
+                }else if (it->_idx >= tmp._idx && it->_str.size() + it->_idx <= tmp._idx + tmp._str.size()){
+                    _unassembled_byte_num -= it->_str.size();
+                    it = _unassembled_bytes.erase(it);
+                }else if (it->_idx < tmp._idx && it->_str.size() + it->_idx >= tmp._idx){
+                    tmp._str = it->_str + tmp._str.substr(it->_str.size() + it->_idx - tmp._idx);
+                    tmp._idx = it->_idx;
+                    _unassembled_byte_num -= it->_str.size();
+                    it = _unassembled_bytes.erase(it);
+                }else if (it->_str.size() + it->_idx > tmp._idx + tmp._str.size()&& tmp._idx + tmp._str.size() >= it->_idx){
+                    tmp._str = tmp._str + it->_str.substr(tmp._idx + tmp._str.size() - it->_idx);
+                    _unassembled_byte_num -= it->_str.size();
+                    it = _unassembled_bytes.erase(it);
+                }else{
+                    it++;
+                }
             }
         }
         if (insertable){
